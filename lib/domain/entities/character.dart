@@ -1,19 +1,26 @@
-class Character {
-  final double positionX;
-  final double positionY;
-  final double speed;
+import 'package:flame/components.dart';
+import 'package:flame/collisions.dart';
+import 'package:flutter/material.dart';
+
+class Character extends PositionComponent with CollisionCallbacks {
+  double speed;
 
   Character({
-    required this.positionX,
-    required this.positionY,
+    required Vector2 position,
+    required Vector2 size,
     required this.speed,
-  });
-
-  Character copyWith({double? positionX, double? positionY, double? speed}) {
-    return Character(
-      positionX: positionX ?? this.positionX,
-      positionY: positionY ?? this.positionY,
-      speed: speed ?? this.speed,
+  }) : super(position: position, size: size) {
+    add(
+      RectangleComponent(
+        size: size,
+        paint: Paint()..color = Colors.red, // Set color to red
+      ),
     );
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    position.x += speed * dt;
   }
 }

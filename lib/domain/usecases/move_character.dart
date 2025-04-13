@@ -10,7 +10,7 @@ class MoveCharacterImpl extends MoveCharacter {
     /**
      * that will make character only move horizontally for now
      */
-    final newPositionX = character.positionX + character.speed * deltaTime;
-    return character.copyWith(positionX: newPositionX);
+    character.position.x += character.speed * deltaTime;
+    return character;
   }
 }

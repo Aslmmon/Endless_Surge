@@ -5,4 +5,3 @@ abstract class CharacterRepository {
 
   Character updateCharacter(Character character);
 }
-
