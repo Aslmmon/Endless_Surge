@@ -1,47 +1,32 @@
-import 'package:endless_surge/domain/usecases/move_character.dart'
-    show MoveCharacterImpl;
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'
-    show ConsumerState, ConsumerStatefulWidget;
+import 'dart:async';
+import 'package:flame/events.dart' show KeyboardEvents;
+import 'package:endless_surge/presentation/entities/Character.dart';
+import 'package:flame/components.dart'; // Correct import
 import 'package:flame/game.dart';
 
-import 'package:endless_surge/domain/entities/character.dart';
+import '../entities/joystick.dart';
 
-import 'package:flame/game.dart';
-import 'package:flame/components.dart';
-
-class GameScreen extends ConsumerStatefulWidget {
-  const GameScreen({super.key});
-
-  @override
-  ConsumerState<GameScreen> createState() => _GameScreenState();
-}
-
-class _GameScreenState extends ConsumerState<GameScreen> {
-  late MyGame game; // Use MyGame
-
-  @override
-  void initState() {
-    super.initState();
-    game = MyGame(); // Use MyGame
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(body: GameWidget(game: game));
-  }
-}
-
-class MyGame extends FlameGame {
+class SurgeGame extends FlameGame with KeyboardEvents {
   late Character characterComponent;
+  late GameJoystick joystick;
 
   @override
-  Future<void> onLoad() async {
+  FutureOr<void> onLoad() {
     characterComponent = Character(
-      position: Vector2(100, 100),
+      position: Vector2(50, 50),
       size: Vector2(50, 50),
-      speed: 100.0,
     );
     add(characterComponent);
+
+    joystick = GameJoystick();
+    add(joystick);
+    return super.onLoad();
+  }
+
+  @override
+  void update(double dt) {
+    characterComponent.move(joystick.direction,dt);
+
+    super.update(dt);
   }
 }
