@@ -2,21 +2,14 @@ import 'package:endless_surge/utils/GameConstants.dart';
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 import 'package:flutter/material.dart';
-
 import '../ui/game.dart' show SurgeGame;
 import 'Obstacle.dart';
 
-/// Represents the player character in the endless runner game.
 class Character extends PositionComponent
     with CollisionCallbacks, HasGameRef<SurgeGame> {
-  /// The velocity of the character, used for movement and jump calculations.
   Vector2 velocity = Vector2.zero();
   double speed = 200; // Character Speed
 
-  /// Creates a new character instance.
-  ///
-  /// [position]: The initial position of the character.
-  /// [size]: The size of the character.
   Character({required Vector2 position, required Vector2 size})
     : super(position: position, size: size) {
     // Adds a red rectangle component to visually represent the character.

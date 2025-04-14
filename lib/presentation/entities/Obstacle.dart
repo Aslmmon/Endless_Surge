@@ -33,8 +33,8 @@ Obstacle generateObstacle(
       screenWidth +
       100; // Generate to the right of the character
   double positionY = random.nextDouble() * (screenHeight - sizeY);
-  double speed =
-      50 + random.nextDouble() * 200; // Random speed between 100 and 300
+  double speed = 50 + random.nextDouble() * 200; // Random speed between 50 and 250
+
 
   return Obstacle(
     position: Vector2(positionX, positionY),

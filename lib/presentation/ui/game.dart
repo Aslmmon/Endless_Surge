@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:endless_surge/presentation/entities/Character.dart';
 import 'package:endless_surge/utils/GameConstants.dart';
+import 'package:flame/camera.dart';
+import 'package:flame/components.dart' show Anchor;
 import 'package:flame/game.dart';
 
 import '../entities/Obstacle.dart';
@@ -14,6 +17,12 @@ class SurgeGame extends FlameGame with HasCollisionDetection {
   Timer? obstacleTimer;
   late ObstaclePool obstaclePool;
   GameState gameState = GameState.playing; // Use GameState enum
+  Random random = Random();
+  Duration generationTimer = const Duration(
+    seconds: 1,
+  ); // Initial timer duration
+
+  late CameraComponent cameraComponent; // Add camera component
 
   @override
   FutureOr<void> onLoad() {
@@ -28,12 +37,34 @@ class SurgeGame extends FlameGame with HasCollisionDetection {
     add(joystick);
 
     obstaclePool = ObstaclePool();
-    obstacleTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      generateObstacleOnScreen();
-    });
+    startObstacleGeneration();
     add(characterComponent);
 
+    // Camera setup
+    cameraComponent = CameraComponent.withFixedResolution(
+      width: GameConstants.screenWidth, // Ensure camera matches screen size
+      height: GameConstants.screenHeight,
+    )..viewfinder.anchor = Anchor.topLeft;
+    cameraComponent.follow(characterComponent); // Follow the character
+    add(cameraComponent);
     return super.onLoad();
+  }
+
+  void startObstacleGeneration() {
+    obstacleTimer = Timer.periodic(generationTimer, (timer) {
+      if (gameState == GameState.playing) {
+        generateObstacleOnScreen();
+        resetObstacleGenerationTimer(); // Reset the timer
+      }
+    });
+  }
+
+  void resetObstacleGenerationTimer() {
+    generationTimer = Duration(
+      milliseconds: 500 + random.nextInt(2500),
+    ); // Random duration between 0.5 and 3 seconds
+    obstacleTimer?.cancel();
+    startObstacleGeneration();
   }
 
   void generateObstacleOnScreen() {
