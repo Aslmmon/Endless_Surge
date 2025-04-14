@@ -123,6 +123,7 @@ class SurgeGame extends FlameGame with HasCollisionDetection {
   void gameOver() {
     gameState = GameState.gameOver;
     obstacleTimer?.cancel();
+
   }
 
   void restartGame() {
