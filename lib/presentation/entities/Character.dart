@@ -8,7 +8,7 @@ import 'Obstacle.dart';
 class Character extends PositionComponent
     with CollisionCallbacks, HasGameRef<SurgeGame> {
   Vector2 velocity = Vector2.zero();
-  double speed = 200; // Character Speed
+  double speed = GameConstants.characterSpeed; // Use GameConstants
 
   Character({required Vector2 position, required Vector2 size})
     : super(position: position, size: size) {
@@ -20,7 +20,6 @@ class Character extends PositionComponent
   void move(JoystickDirection direction, double dt) {
     Vector2 newPosition = position.clone();
 
-    // Add dt parameter
     switch (direction) {
       case JoystickDirection.up:
         newPosition.y -= speed * dt;
@@ -50,7 +49,6 @@ class Character extends PositionComponent
         break;
     }
 
-    // Boundary checks using clamp
     newPosition.x = newPosition.x.clamp(0, GameConstants.screenWidth - size.x);
     newPosition.y = newPosition.y.clamp(0, GameConstants.screenHeight - size.y);
 
@@ -61,8 +59,7 @@ class Character extends PositionComponent
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
     if (other is Obstacle) {
-      game.gameOver(); // Use gameOver method
+      game.gameOver();
     }
-
   }
 }

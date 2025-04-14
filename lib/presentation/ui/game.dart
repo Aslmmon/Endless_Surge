@@ -1,14 +1,13 @@
 import 'dart:async';
 import 'dart:math';
-
 import 'package:endless_surge/presentation/entities/Character.dart';
 import 'package:endless_surge/utils/GameConstants.dart';
 import 'package:flame/camera.dart';
 import 'package:flame/components.dart' show Anchor;
 import 'package:flame/game.dart';
-
 import '../entities/Obstacle.dart';
 import '../entities/joystick.dart';
+import '../entities/obstacle_pool/ObstaclePool.dart';
 
 class SurgeGame extends FlameGame with HasCollisionDetection {
   late Character characterComponent;
@@ -16,61 +15,76 @@ class SurgeGame extends FlameGame with HasCollisionDetection {
   List<Obstacle> obstacleComponents = [];
   Timer? obstacleTimer;
   late ObstaclePool obstaclePool;
-  GameState gameState = GameState.playing; // Use GameState enum
+  GameState gameState = GameState.playing;
   Random random = Random();
-  Duration generationTimer = const Duration(
-    seconds: 1,
-  ); // Initial timer duration
-
-  late CameraComponent cameraComponent; // Add camera component
+  Duration generationTimer = GameConstants.initialObstacleGenerationDuration;
+  late CameraComponent cameraComponent;
 
   @override
   FutureOr<void> onLoad() {
-    GameConstants.initialize(this); // Initialize constants
+    GameConstants.initialize(this);
+    setupCharacter();
+    setupJoystick();
+    setupObstaclePool();
+    setupCamera();
+    startObstacleGeneration();
     debugMode = true;
-    characterComponent = Character(
-      position: Vector2(50, 50),
-      size: Vector2(50, 50),
-    );
+    return super.onLoad();
+  }
 
+  void setupCharacter() {
+    characterComponent = Character(
+      position: Vector2(
+        GameConstants.characterInitialX,
+        GameConstants.characterInitialY,
+      ),
+      size: Vector2.all(GameConstants.characterSize),
+    );
+    add(characterComponent);
+  }
+
+  void setupJoystick() {
     joystick = GameJoystick();
     add(joystick);
+  }
 
+  void setupObstaclePool() {
     obstaclePool = ObstaclePool();
-    startObstacleGeneration();
-    add(characterComponent);
+  }
 
-    // Camera setup
+  void setupCamera() {
     cameraComponent = CameraComponent.withFixedResolution(
-      width: GameConstants.screenWidth, // Ensure camera matches screen size
+      width: GameConstants.screenWidth,
       height: GameConstants.screenHeight,
     )..viewfinder.anchor = Anchor.topLeft;
-    cameraComponent.follow(characterComponent); // Follow the character
+    cameraComponent.follow(characterComponent);
     add(cameraComponent);
-    return super.onLoad();
   }
 
   void startObstacleGeneration() {
     obstacleTimer = Timer.periodic(generationTimer, (timer) {
       if (gameState == GameState.playing) {
         generateObstacleOnScreen();
-        resetObstacleGenerationTimer(); // Reset the timer
+        resetObstacleGenerationTimer();
       }
     });
   }
 
   void resetObstacleGenerationTimer() {
     generationTimer = Duration(
-      milliseconds: 500 + random.nextInt(2500),
-    ); // Random duration between 0.5 and 3 seconds
+      milliseconds:
+          GameConstants.obstacleGenerationIntervalMin.toInt() +
+          random.nextInt(
+            GameConstants.obstacleGenerationIntervalMax.toInt() -
+                GameConstants.obstacleGenerationIntervalMin.toInt(),
+          ),
+    );
     obstacleTimer?.cancel();
     startObstacleGeneration();
   }
 
   void generateObstacleOnScreen() {
     Obstacle obstacle = obstaclePool.getObstacle(
-      size.x,
-      size.y,
       characterComponent.position.x,
     );
     add(obstacle);
@@ -81,25 +95,29 @@ class SurgeGame extends FlameGame with HasCollisionDetection {
   void update(double dt) {
     if (gameState == GameState.playing) {
       characterComponent.move(joystick.direction, dt);
-
-      // Moves all obstacles to the left based on their speed.
-      for (var obstacle in obstacleComponents) {
-        obstacle.position.x -= obstacle.speed * dt;
-      }
-
-      // Removes obst obstacles that are off-screen and returns them to the pool.
-      obstacleComponents.removeWhere((obstacle) {
-        if (obstacle.position.x + GameConstants.screenWidth < 0) {
-          obstaclePool.returnObstacle(obstacle);
-          print(
-            "Removed obstacle and returned to pool - ${obstacleComponents.length}",
-          );
-          return true;
-        }
-        return false;
-      });
+      moveObstacles(dt);
+      removeOffScreenObstacles();
     }
     super.update(dt);
+  }
+
+  void moveObstacles(double dt) {
+    for (var obstacle in obstacleComponents) {
+      obstacle.position.x -= obstacle.speed * dt;
+    }
+  }
+
+  void removeOffScreenObstacles() {
+    obstacleComponents.removeWhere((obstacle) {
+      if (obstacle.position.x + GameConstants.screenWidth < 0) {
+        obstaclePool.returnObstacle(obstacle);
+        print(
+          "Removed obstacle and returned to pool - ${obstacleComponents.length}",
+        );
+        return true;
+      }
+      return false;
+    });
   }
 
   void gameOver() {
@@ -109,17 +127,15 @@ class SurgeGame extends FlameGame with HasCollisionDetection {
 
   void restartGame() {
     gameState = GameState.playing;
-    obstacleTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (gameState == GameState.playing) {
-        generateObstacleOnScreen();
-      }
-    });
-
+    startObstacleGeneration();
     obstacleComponents.forEach((obstacle) {
       obstaclePool.returnObstacle(obstacle);
     });
     obstacleComponents.clear();
-    characterComponent.position = Vector2(50, 50);
+    characterComponent.position = Vector2(
+      GameConstants.characterInitialX,
+      GameConstants.characterInitialY,
+    );
     characterComponent.velocity.setZero();
   }
 
