@@ -1,10 +1,9 @@
 import 'dart:async';
-
+import 'package:endless_surge/utils/AssetsPaths.dart';
 import 'package:endless_surge/utils/GameConstants.dart';
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/flame.dart';
-import 'package:flutter/material.dart';
 import '../ui/game.dart' show SurgeGame;
 import 'Obstacle.dart';
 
@@ -14,28 +13,32 @@ class Character extends SpriteAnimationComponent
   double speed = GameConstants.characterSpeed; // Use GameConstants
 
   Character({required Vector2 position, required Vector2 size})
-    : super(position: position, size: size) {
-    // Adds a red rectangle component to visually represent the character.
-    add(RectangleComponent(size: size, paint: Paint()..color = (Colors.red)));
-    add(RectangleHitbox());
-  }
+    : super(position: position, size: size) {}
 
   @override
   Future<void> onLoad() async {
-    final image1 = await Flame.images.load('frame-1.png');
-    final image2 = await Flame.images.load('frame-2.png');
-
-    // final image3 = await images.load('character_run_3.png');
-    // final image4 = await images.load('character_run_4.png');
-
-
-
-    animation = SpriteAnimation.spriteList([
-      Sprite(image1), Sprite(image2),
-      // Sprite(image3), Sprite(image4)
-    ], stepTime: 0.1);
-
+    animation = await _loadRunAnimation();
+    add(
+      RectangleHitbox(
+        anchor: Anchor.topLeft,
+        size: Vector2(40, 40), // Adjust to your sprite's size
+      ),
+    );
     return super.onLoad();
+  }
+
+  Future<SpriteAnimation> _loadRunAnimation() async {
+    final image1 = await Flame.images.load(AssetPaths.characterFrame1);
+    final image2 = await Flame.images.load(AssetPaths.characterFrame2);
+    final image3 = await Flame.images.load(AssetPaths.characterFrame3);
+    final image4 = await Flame.images.load(AssetPaths.characterFrame4);
+
+    return SpriteAnimation.spriteList([
+      Sprite(image1),
+      Sprite(image2),
+      Sprite(image3),
+      Sprite(image4),
+    ], stepTime: AssetPaths.characterRunStepTime);
   }
 
   void move(JoystickDirection direction, double dt) {
@@ -84,6 +87,15 @@ class Character extends SpriteAnimationComponent
     super.onCollision(intersectionPoints, other);
     if (other is Obstacle) {
       game.gameOver();
+      pauseAnimationPlayer();
     }
+  }
+
+  void pauseAnimationPlayer() {
+    animationTicker?.paused = true;
+  }
+
+  void continueAnimationPlayer() {
+    animationTicker?.paused = false;
   }
 }
