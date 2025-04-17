@@ -1,10 +1,13 @@
 import 'package:endless_surge/utils/GameConstants.dart';
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
+import 'package:flame/flame.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
-class Obstacle extends PositionComponent with CollisionCallbacks {
+import '../../utils/AssetsPaths.dart';
+
+class Obstacle extends SpriteAnimationComponent with CollisionCallbacks {
   double speed; // Add speed variable
 
   Obstacle({
@@ -12,9 +15,42 @@ class Obstacle extends PositionComponent with CollisionCallbacks {
     required Vector2 size,
     required this.speed,
   }) : super(position: position, size: size) {
-    add(RectangleComponent(size: size, paint: Paint()..color = (Colors.blue)));
-    add(RectangleHitbox());
+    flipHorizontally();
   }
+
+  @override
+  Future<void> onLoad() async {
+    animation = await _loadRunAnimation();
+    add(
+      RectangleHitbox(
+        anchor: Anchor.topLeft,
+        size: Vector2(40, 40), // Adjust to your sprite's size
+      ),
+    );
+    return super.onLoad();
+  }
+}
+
+Future<SpriteAnimation> _loadRunAnimation() async {
+  final image1 = await Flame.images.load(AssetPaths.enemyFrame1);
+  final image2 = await Flame.images.load(AssetPaths.enemyFrame2);
+  final image3 = await Flame.images.load(AssetPaths.enemyFrame3);
+  final image4 = await Flame.images.load(AssetPaths.enemyFrame4);
+  final image5 = await Flame.images.load(AssetPaths.enemyFrame5);
+  final image6 = await Flame.images.load(AssetPaths.enemyFrame6);
+  final image7 = await Flame.images.load(AssetPaths.enemyFrame7);
+  final image8 = await Flame.images.load(AssetPaths.enemyFrame8);
+
+  return SpriteAnimation.spriteList([
+    Sprite(image1),
+    Sprite(image2),
+    Sprite(image3),
+    Sprite(image4),
+    Sprite(image5),
+    Sprite(image6),
+    Sprite(image7),
+    Sprite(image8),
+  ], stepTime: AssetPaths.characterRunStepTime)..reversed();
 }
 
 Obstacle generateObstacle(double characterPositionX) {
@@ -37,4 +73,3 @@ Obstacle generateObstacle(double characterPositionX) {
     speed: speed,
   );
 }
-
