@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:endless_surge/presentation/entities/Background.dart';
 import 'package:endless_surge/presentation/entities/Character.dart';
 import 'package:endless_surge/utils/GameConstants.dart';
 import 'package:flame/camera.dart';
@@ -11,6 +12,7 @@ import '../entities/obstacle_pool/ObstaclePool.dart';
 
 class SurgeGame extends FlameGame with HasCollisionDetection {
   late Character characterComponent;
+  late BackgroundParallax backgroundParallax;
   late GameJoystick joystick;
   List<Obstacle> obstacleComponents = [];
   Timer? obstacleTimer;
@@ -23,6 +25,7 @@ class SurgeGame extends FlameGame with HasCollisionDetection {
   @override
   FutureOr<void> onLoad() {
     GameConstants.initialize(this);
+    setupBackground();
     setupCharacter();
     setupJoystick();
     setupObstaclePool();
@@ -30,6 +33,11 @@ class SurgeGame extends FlameGame with HasCollisionDetection {
     startObstacleGeneration();
     debugMode = true;
     return super.onLoad();
+  }
+
+  void setupBackground() {
+    backgroundParallax = BackgroundParallax();
+    add(backgroundParallax);
   }
 
   void setupCharacter() {
@@ -84,9 +92,7 @@ class SurgeGame extends FlameGame with HasCollisionDetection {
   }
 
   void generateObstacleOnScreen() {
-    Obstacle obstacle = obstaclePool.getObstacle(
-      characterComponent.position.x,
-    );
+    Obstacle obstacle = obstaclePool.getObstacle(characterComponent.position.x);
     add(obstacle);
     obstacleComponents.add(obstacle);
   }
@@ -123,7 +129,6 @@ class SurgeGame extends FlameGame with HasCollisionDetection {
   void gameOver() {
     gameState = GameState.gameOver;
     obstacleTimer?.cancel();
-
   }
 
   void restartGame() {

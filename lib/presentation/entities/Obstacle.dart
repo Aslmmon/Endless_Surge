@@ -20,7 +20,7 @@ class Obstacle extends SpriteAnimationComponent with CollisionCallbacks {
 
   @override
   Future<void> onLoad() async {
-    animation = await _loadRunAnimation();
+    animation = await _loadObstacleAnimation();
     add(
       RectangleHitbox(
         anchor: Anchor.topLeft,
@@ -31,7 +31,7 @@ class Obstacle extends SpriteAnimationComponent with CollisionCallbacks {
   }
 }
 
-Future<SpriteAnimation> _loadRunAnimation() async {
+Future<SpriteAnimation> _loadObstacleAnimation() async {
   final image1 = await Flame.images.load(AssetPaths.enemyFrame1);
   final image2 = await Flame.images.load(AssetPaths.enemyFrame2);
   final image3 = await Flame.images.load(AssetPaths.enemyFrame3);
@@ -50,7 +50,7 @@ Future<SpriteAnimation> _loadRunAnimation() async {
     Sprite(image6),
     Sprite(image7),
     Sprite(image8),
-  ], stepTime: AssetPaths.characterRunStepTime)..reversed();
+  ], stepTime: AssetPaths.characterRunStepTime);
 }
 
 Obstacle generateObstacle(double characterPositionX) {
