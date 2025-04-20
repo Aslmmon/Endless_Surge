@@ -4,8 +4,8 @@ class AssetPaths {
   static const String characterFrame3 = '$yellowFolder/frame3.png';
   static const String characterFrame4 = '$yellowFolder/frame4.png';
   static const double characterRunStepTime = 0.1;
-  static const String yellowFolder = '/birds/yellow/';
-  static const String enemyFolder = '/enemy';
+  static const String yellowFolder = 'birds/yellow';
+  static const String enemyFolder = 'enemy';
 
   static const String enemyFrame1 = '$enemyFolder/skeleton-animation_00.png';
   static const String enemyFrame2 = '$enemyFolder/skeleton-animation_01.png';
@@ -23,6 +23,5 @@ class AssetPaths {
   static const String enemyFrame14 = '$enemyFolder/skeleton-animation_13.png';
   static const String enemyFrame15 = '$enemyFolder/skeleton-animation_14.png';
 
-
-// Add other asset paths...
+  // Add other asset paths...
 }
