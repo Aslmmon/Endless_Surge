@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:endless_surge/presentation/entities/background/Background.dart';
 import 'package:endless_surge/presentation/entities/character/Character.dart';
+import 'package:endless_surge/presentation/entities/particles/collision_particles.dart';
 import 'package:endless_surge/utils/GameConstants.dart';
 import 'package:flame/camera.dart';
 import 'package:flame/components.dart' show Anchor, TextComponent;
@@ -36,6 +37,7 @@ class SurgeGame extends FlameGame with HasCollisionDetection {
     setupCamera();
     startObstacleGeneration();
     debugMode = true;
+
     _setupTextScoreComponent();
     return super.onLoad();
   }

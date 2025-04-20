@@ -4,6 +4,7 @@ import 'package:endless_surge/utils/GameConstants.dart';
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/flame.dart';
+import 'package:flame/sprite.dart';
 import '../../ui/game.dart' show SurgeGame;
 import '../obstacles/Obstacle.dart';
 import '../particles/collision_particles.dart';
@@ -19,7 +20,9 @@ class Character extends SpriteAnimationComponent
 
   @override
   Future<void> onLoad() async {
-    animation = await _loadRunAnimation();
+
+
+   animation = await _loadRunAnimation();
     add(
       RectangleHitbox(
         anchor: Anchor.topLeft,
@@ -41,7 +44,12 @@ class Character extends SpriteAnimationComponent
       Sprite(image3),
       Sprite(image4),
     ], stepTime: AssetPaths.characterRunStepTime);
+
+
   }
+
+
+
 
   void move(JoystickDirection direction, double dt) {
     Vector2 newPosition = position.clone();
@@ -101,6 +109,7 @@ class Character extends SpriteAnimationComponent
         _collisionParticles = null;
       });
       removeFromParent();
+
     }
   }
 

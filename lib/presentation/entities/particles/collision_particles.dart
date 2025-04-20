@@ -1,24 +1,29 @@
-import 'dart:math';
-import 'dart:ui';
+import 'package:endless_surge/utils/AssetsPaths.dart';
 import 'package:flame/components.dart';
+import 'package:flame/flame.dart';
 import 'package:flame/particles.dart';
-import 'package:flutter/material.dart';
+import 'package:flame/sprite.dart';
 
-class CollisionParticles extends ParticleSystemComponent {
-  CollisionParticles({required Vector2 position})
-    : super(
-        particle: Particle.generate(
-          count: 50, // Number of particles
-          generator:
-              (i) => CircleParticle(
-                radius: 20 + i * 0.1, // Varying initial size
-                paint: Paint()..color = Colors.red.withOpacity(0.6),
-                lifespan: 500.0, // 1 minute lifespan in seconds
-              ),
-        ),
-        position: position,
-      );
+class CollisionParticles extends ParticleSystemComponent with HasGameRef {
+  CollisionParticles({required Vector2 position}) : super(position: position);
 
-  // You might want a way to stop these particles after the game over effect
-  // Consider adding a method to remove the component.
+  @override
+  Future<void> onLoad() async {
+    final image = await Flame.images.load(AssetPaths.particleEffect);
+    final spriteSheet = SpriteSheet(image: image, srcSize: Vector2(128, 128));
+
+    final animation = spriteSheet.createAnimation(
+      row: 2,
+      stepTime: 0.2,
+      loop: true,
+      to: 4,
+
+    );
+
+    particle = SpriteAnimationParticle(
+      animation: animation,
+      lifespan: 1,
+      size: Vector2.all(128),
+    );
+  }
 }
