@@ -1,5 +1,5 @@
 import 'dart:collection';
-import 'package:endless_surge/presentation/entities/Obstacle.dart'
+import 'package:endless_surge/presentation/entities/obstacles/Obstacle.dart'
     show Obstacle, generateObstacle;
 import 'package:endless_surge/utils/GameConstants.dart';
 import 'package:flame/components.dart';

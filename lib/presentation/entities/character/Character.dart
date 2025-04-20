@@ -4,13 +4,15 @@ import 'package:endless_surge/utils/GameConstants.dart';
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/flame.dart';
-import '../ui/game.dart' show SurgeGame;
-import 'Obstacle.dart';
+import '../../ui/game.dart' show SurgeGame;
+import '../obstacles/Obstacle.dart';
+import '../particles/collision_particles.dart';
 
 class Character extends SpriteAnimationComponent
     with CollisionCallbacks, HasGameRef<SurgeGame> {
   Vector2 velocity = Vector2.zero();
   double speed = GameConstants.characterSpeed; // Use GameConstants
+  CollisionParticles? _collisionParticles; // To hold a reference
 
   Character({required Vector2 position, required Vector2 size})
     : super(position: position, size: size) {}
@@ -88,6 +90,17 @@ class Character extends SpriteAnimationComponent
     if (other is Obstacle) {
       game.gameOver();
       pauseAnimationPlayer();
+
+      if (intersectionPoints.isNotEmpty) {
+        final collisionPosition = intersectionPoints.first;
+        _collisionParticles = CollisionParticles(position: collisionPosition);
+        gameRef.add(_collisionParticles as Component);
+      }
+      Future.delayed(const Duration(seconds: 3), () {
+        _collisionParticles?.removeFromParent();
+        _collisionParticles = null;
+      });
+      removeFromParent();
     }
   }
 

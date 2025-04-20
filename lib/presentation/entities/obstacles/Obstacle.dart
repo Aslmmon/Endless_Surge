@@ -5,7 +5,7 @@ import 'package:flame/flame.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
-import '../../utils/AssetsPaths.dart';
+import '../../../utils/AssetsPaths.dart';
 
 class Obstacle extends SpriteAnimationComponent with CollisionCallbacks {
   double speed; // Add speed variable

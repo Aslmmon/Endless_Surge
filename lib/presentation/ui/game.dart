@@ -1,14 +1,16 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:endless_surge/presentation/entities/Background.dart';
-import 'package:endless_surge/presentation/entities/Character.dart';
+import 'package:endless_surge/presentation/entities/background/Background.dart';
+import 'package:endless_surge/presentation/entities/character/Character.dart';
 import 'package:endless_surge/utils/GameConstants.dart';
 import 'package:flame/camera.dart';
-import 'package:flame/components.dart' show Anchor;
+import 'package:flame/components.dart' show Anchor, TextComponent;
 import 'package:flame/game.dart';
-import '../entities/Obstacle.dart';
-import '../entities/joystick.dart';
-import '../entities/obstacle_pool/ObstaclePool.dart';
+import 'package:flame/text.dart';
+import 'package:flutter/material.dart';
+import '../entities/obstacles/Obstacle.dart';
+import '../entities/Joystick/joystick.dart';
+import '../entities/obstacles/obstacle_pool/ObstaclePool.dart';
 
 class SurgeGame extends FlameGame with HasCollisionDetection {
   late Character characterComponent;
@@ -21,6 +23,8 @@ class SurgeGame extends FlameGame with HasCollisionDetection {
   Random random = Random();
   Duration generationTimer = GameConstants.initialObstacleGenerationDuration;
   late CameraComponent cameraComponent;
+  int _score = 0;
+  double _scoreTimer = 0;
 
   @override
   FutureOr<void> onLoad() {
@@ -32,6 +36,7 @@ class SurgeGame extends FlameGame with HasCollisionDetection {
     setupCamera();
     startObstacleGeneration();
     debugMode = true;
+    _setupTextScoreComponent();
     return super.onLoad();
   }
 
@@ -69,6 +74,29 @@ class SurgeGame extends FlameGame with HasCollisionDetection {
     add(cameraComponent);
   }
 
+  void _setupTextScoreComponent() {
+    final scoreTextPaint = TextPaint(
+      style: TextStyle(
+        fontSize: 32.0,
+        color: Colors.white,
+        fontFamily: 'Arial', // You can choose a different font
+      ),
+    );
+
+    final scoreComponent = TextComponent(
+      text: 'Score: $_score',
+      textRenderer: scoreTextPaint,
+      position: Vector2(
+        GameConstants.screenWidth * 0.05,
+        GameConstants.screenHeight * 0.05,
+      ),
+      // Position in the top-left
+      anchor: Anchor.topLeft,
+    );
+
+    add(scoreComponent);
+  }
+
   void startObstacleGeneration() {
     obstacleTimer = Timer.periodic(generationTimer, (timer) {
       if (gameState == GameState.playing) {
@@ -101,10 +129,22 @@ class SurgeGame extends FlameGame with HasCollisionDetection {
   void update(double dt) {
     if (gameState == GameState.playing) {
       characterComponent.move(joystick.direction, dt);
+      _incrementScore(dt);
       moveObstacles(dt);
       removeOffScreenObstacles();
     }
     super.update(dt);
+  }
+
+  void _incrementScore(double dt) {
+    _scoreTimer += dt;
+    if (_scoreTimer >= GameConstants.scoreIncrementInterval) {
+      _score++;
+      _scoreTimer -= GameConstants.scoreIncrementInterval; // Reset the timer
+      // Update the text of the score component
+      final scoreComponent = children.whereType<TextComponent>().first;
+      scoreComponent.text = 'Score: $_score';
+    }
   }
 
   void moveObstacles(double dt) {

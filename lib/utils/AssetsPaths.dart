@@ -6,6 +6,7 @@ class AssetPaths {
   static const double characterRunStepTime = 0.1;
   static const String yellowFolder = 'birds/yellow';
   static const String enemyFolder = 'enemy';
+  static const String particlesFolder = 'particles';
 
   static const String enemyFrame1 = '$enemyFolder/skeleton-animation_00.png';
   static const String enemyFrame2 = '$enemyFolder/skeleton-animation_01.png';
@@ -24,4 +25,7 @@ class AssetPaths {
   static const String enemyFrame15 = '$enemyFolder/skeleton-animation_14.png';
 
   // Add other asset paths...
+
+  static const String particleEffect = '$particlesFolder/ring_fire.png';
+
 }
