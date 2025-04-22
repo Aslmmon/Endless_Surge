@@ -42,4 +42,3 @@ class GameConstants {
   }
 }
 
-enum GameState { playing, gameOver }

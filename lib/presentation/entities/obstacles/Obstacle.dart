@@ -2,7 +2,6 @@ import 'package:endless_surge/utils/GameConstants.dart';
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/flame.dart';
-import 'package:flutter/material.dart';
 import 'dart:math';
 
 import '../../../utils/AssetsPaths.dart';

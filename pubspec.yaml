@@ -60,7 +60,10 @@ flutter:
 
 
   uses-material-design: true
-
+  fonts:
+    - family: visitor
+      fonts:
+        - asset: assets/fonts/visitor.ttf
   assets:
     - assets/images/birds/yellow/
     - assets/images/birds/plane/  
@@ -68,3 +71,4 @@ flutter:
     - assets/images/parallax/
     - assets/images/particles/
     - assets/audio/
+    - assets/fonts/

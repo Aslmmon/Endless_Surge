@@ -4,7 +4,6 @@ import 'package:endless_surge/utils/GameConstants.dart';
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/flame.dart';
-import 'package:flame/sprite.dart';
 import 'package:flame_audio/flame_audio.dart';
 import '../../ui/game.dart' show SurgeGame;
 import '../obstacles/Obstacle.dart';
@@ -16,7 +15,6 @@ class Character extends SpriteAnimationComponent
   double speed = GameConstants.characterSpeed; // Use GameConstants
   CollisionParticles? _collisionParticles; // To hold a reference
   AudioPlayer? _runningSoundPlayer; // To hold the AudioPlayer instance
-  AudioPlayer? _collisionSoundPlayer; // To hold the AudioPlayer instance
 
   Character({required Vector2 position, required Vector2 size})
     : super(position: position, size: size) {}
@@ -75,6 +73,7 @@ class Character extends SpriteAnimationComponent
         break;
       case JoystickDirection.idle:
         break;
+
     }
 
     _applyBoundaryChecks(newPosition);
@@ -90,7 +89,7 @@ class Character extends SpriteAnimationComponent
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollision(intersectionPoints, other);
     if (other is Obstacle) {
-      game.gameOver();
+      game.gameManager.gameOver(); // Notify GameManager
       pauseAnimationPlayer();
       _stopRunningSound();
       if (intersectionPoints.isNotEmpty) {
@@ -118,15 +117,12 @@ class Character extends SpriteAnimationComponent
   void _startRunningSound() async {
     _runningSoundPlayer = await FlameAudio.loop(
       AssetPaths.planeSound,
-      volume: 0.3,
+      volume: 0.2,
     );
   }
 
   void _playExplosionSound() async {
-    _collisionSoundPlayer = await FlameAudio.play(
-      AssetPaths.explosionSound,
-      volume: 0.4,
-    );
+    await FlameAudio.play(AssetPaths.explosionSound, volume: 0.4);
   }
 
   void _stopRunningSound() {

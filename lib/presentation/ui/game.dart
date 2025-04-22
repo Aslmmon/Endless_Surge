@@ -1,68 +1,84 @@
 import 'dart:async';
-import 'dart:math';
+import 'dart:io';
+import 'package:endless_surge/managers/GameManager.dart'
+    show GameManager, GameState;
 import 'package:endless_surge/presentation/entities/background/Background.dart';
 import 'package:endless_surge/presentation/entities/character/Character.dart';
 import 'package:endless_surge/utils/GameConstants.dart';
 import 'package:flame/camera.dart';
 import 'package:flame/components.dart' show Anchor, TextComponent;
+import 'package:flame/events.dart' show TapCallbacks, TapDownEvent, TapDownInfo;
 import 'package:flame/game.dart';
 import 'package:flame/text.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../utils/AssetsPaths.dart';
-import '../entities/obstacles/Obstacle.dart';
 import '../entities/Joystick/joystick.dart';
-import '../entities/obstacles/obstacle_pool/ObstaclePool.dart';
 
-class SurgeGame extends FlameGame with HasCollisionDetection {
+class SurgeGame extends FlameGame with HasCollisionDetection, TapCallbacks {
   late Character characterComponent;
   late BackgroundParallax backgroundParallax;
   late GameJoystick joystick;
-  List<Obstacle> obstacleComponents = [];
-  Timer? obstacleTimer;
-  late ObstaclePool obstaclePool;
-  GameState gameState = GameState.playing;
-  Random random = Random();
-  Duration generationTimer = GameConstants.initialObstacleGenerationDuration;
   late CameraComponent cameraComponent;
-  int _score = 0;
-  double _scoreTimer = 0;
-  AudioPlayer? _backgroundMusicPlayer;
+  late final GameManager gameManager; // Use final and initialize in onLoad
+  static const double scoreIncrementInterval =
+      0.5; // Keep as a constant here for now
+  bool _audioStarted = false;
+  AudioPlayer? _backgroundMusicPlayer; // Store the player instance
 
   @override
-  FutureOr<void> onLoad() {
+  Future<void> onLoad() async {
     GameConstants.initialize(this);
+    gameManager = GameManager(this); // Initialize GameManager
+
     FlameAudio.audioCache.loadAll([
       AssetPaths.planeSound,
       AssetPaths.explosionSound,
       AssetPaths.backgroundSound,
     ]);
-    _startBackgroundMusic();
-    setupBackground();
-    setupCharacter();
-    setupJoystick();
-    setupObstaclePool();
-    setupCamera();
-    startObstacleGeneration();
+
+    if (isWeb()) {
+      print("Running on Web");
+    } else {
+      print("Running on a native platform (Android, iOS, Desktop)");
+      await _startBackgroundMusic(); // Start immediately on native
+    }
+    _setupBackground();
+    _setupCharacter();
+    _setupJoystick();
+    _setupCamera();
+    gameManager.startObstacleGeneration(); // Delegate to GameManager
+    _setupTextScoreComponent();
     debugMode = true;
 
-    _setupTextScoreComponent();
     return super.onLoad();
   }
 
-  Future<void> _startBackgroundMusic() async {
-    _backgroundMusicPlayer = await FlameAudio.loop(
-      AssetPaths.backgroundSound,
-      volume: 0.5,
-    );
+  @override
+  void onTapDown(TapDownEvent event) {
+    if (isWeb() && !_audioStarted) {
+      _startBackgroundMusic();
+      _audioStarted = true;
+    }
+    super.onTapDown(event); // Don't forget to call super
   }
 
-  void setupBackground() {
+  Future<void> _startBackgroundMusic() async {
+    if (_backgroundMusicPlayer?.state != PlayerState.playing) {
+      _backgroundMusicPlayer = await FlameAudio.play(
+        AssetPaths.backgroundSound,
+        volume: 0.5,
+      );
+    }
+  }
+
+  void _setupBackground() {
     backgroundParallax = BackgroundParallax();
     add(backgroundParallax);
   }
 
-  void setupCharacter() {
+  void _setupCharacter() {
     characterComponent = Character(
       position: Vector2(
         GameConstants.characterInitialX,
@@ -73,16 +89,12 @@ class SurgeGame extends FlameGame with HasCollisionDetection {
     add(characterComponent);
   }
 
-  void setupJoystick() {
+  void _setupJoystick() {
     joystick = GameJoystick();
     add(joystick);
   }
 
-  void setupObstaclePool() {
-    obstaclePool = ObstaclePool();
-  }
-
-  void setupCamera() {
+  void _setupCamera() {
     cameraComponent = CameraComponent.withFixedResolution(
       width: GameConstants.screenWidth,
       height: GameConstants.screenHeight,
@@ -96,12 +108,12 @@ class SurgeGame extends FlameGame with HasCollisionDetection {
       style: TextStyle(
         fontSize: 32.0,
         color: Colors.white,
-        fontFamily: 'Arial', // You can choose a different font
+        fontFamily: 'visitor', // You can choose a different font
       ),
     );
 
     final scoreComponent = TextComponent(
-      text: 'Score: $_score',
+      text: 'Score: ${gameManager.score}', // Get initial score from GameManager
       textRenderer: scoreTextPaint,
       position: Vector2(
         GameConstants.screenWidth * 0.05,
@@ -114,97 +126,41 @@ class SurgeGame extends FlameGame with HasCollisionDetection {
     add(scoreComponent);
   }
 
-  void startObstacleGeneration() {
-    obstacleTimer = Timer.periodic(generationTimer, (timer) {
-      if (gameState == GameState.playing) {
-        generateObstacleOnScreen();
-        resetObstacleGenerationTimer();
-      }
-    });
-  }
-
-  void resetObstacleGenerationTimer() {
-    generationTimer = Duration(
-      milliseconds:
-          GameConstants.obstacleGenerationIntervalMin.toInt() +
-          random.nextInt(
-            GameConstants.obstacleGenerationIntervalMax.toInt() -
-                GameConstants.obstacleGenerationIntervalMin.toInt(),
-          ),
-    );
-    obstacleTimer?.cancel();
-    startObstacleGeneration();
-  }
-
-  void generateObstacleOnScreen() {
-    Obstacle obstacle = obstaclePool.getObstacle(characterComponent.position.x);
-    add(obstacle);
-    obstacleComponents.add(obstacle);
-  }
-
   @override
   void update(double dt) {
-    if (gameState == GameState.playing) {
+    if (gameManager.gameState == GameState.playing) {
       characterComponent.move(joystick.direction, dt);
-      _incrementScore(dt);
-      moveObstacles(dt);
-      removeOffScreenObstacles();
+      gameManager.incrementScore(dt); // Delegate to GameManager
+      gameManager.moveObstacles(dt); // Delegate to GameManager
+      gameManager.removeOffScreenObstacles(); // Delegate to GameManager
     }
     super.update(dt);
   }
 
-  void _incrementScore(double dt) {
-    _scoreTimer += dt;
-    if (_scoreTimer >= GameConstants.scoreIncrementInterval) {
-      _score++;
-      _scoreTimer -= GameConstants.scoreIncrementInterval; // Reset the timer
-      // Update the text of the score component
-      final scoreComponent = children.whereType<TextComponent>().first;
-      scoreComponent.text = 'Score: $_score';
-    }
-  }
-
-  void moveObstacles(double dt) {
-    for (var obstacle in obstacleComponents) {
-      obstacle.position.x -= obstacle.speed * dt;
-    }
-  }
-
-  void removeOffScreenObstacles() {
-    obstacleComponents.removeWhere((obstacle) {
-      if (obstacle.position.x + GameConstants.screenWidth < 0) {
-        obstaclePool.returnObstacle(obstacle);
-        print(
-          "Removed obstacle and returned to pool - ${obstacleComponents.length}",
-        );
-        return true;
-      }
-      return false;
-    });
-  }
-
   void gameOver() {
-    gameState = GameState.gameOver;
-    obstacleTimer?.cancel();
+    gameManager.gameOver(); // Delegate to GameManager
+    // Add any game over UI or other logic here
   }
 
   void restartGame() {
-    gameState = GameState.playing;
-    startObstacleGeneration();
-    obstacleComponents.forEach((obstacle) {
-      obstaclePool.returnObstacle(obstacle);
-    });
-    obstacleComponents.clear();
-    characterComponent.position = Vector2(
-      GameConstants.characterInitialX,
-      GameConstants.characterInitialY,
-    );
-    characterComponent.velocity.setZero();
+    gameManager.restartGame(); // Delegate to GameManager
+    // Add any UI reset or other restart logic here
   }
 
   @override
   void onRemove() {
-    obstacleTimer?.cancel();
+    gameManager.obstacleTimer?.cancel(); // Delegate to GameManager
+    _backgroundMusicPlayer?.dispose(); // Clean up on removal
     super.onRemove();
+  }
+}
+
+bool isWeb() {
+  try {
+    // Running in a browser won't have the dart:io library fully implemented,
+    // causing a NoSuchMethodError or similar.
+    return Platform.environment.containsKey('FLUTTER_WEB_ORIGIN');
+  } catch (e) {
+    return true; // Assume it's web if there's an error accessing Platform
   }
 }
