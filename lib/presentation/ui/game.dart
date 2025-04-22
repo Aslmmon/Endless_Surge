@@ -12,7 +12,6 @@ import 'package:flame/game.dart';
 import 'package:flame/text.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../utils/AssetsPaths.dart';
 import '../entities/Joystick/joystick.dart';
 
@@ -22,8 +21,7 @@ class SurgeGame extends FlameGame with HasCollisionDetection, TapCallbacks {
   late GameJoystick joystick;
   late CameraComponent cameraComponent;
   late final GameManager gameManager; // Use final and initialize in onLoad
-  static const double scoreIncrementInterval =
-      0.5; // Keep as a constant here for now
+  static const double scoreIncrementInterval = 0.5; // Keep as a constant here for now
   bool _audioStarted = false;
   AudioPlayer? _backgroundMusicPlayer; // Store the player instance
 
@@ -66,7 +64,7 @@ class SurgeGame extends FlameGame with HasCollisionDetection, TapCallbacks {
 
   Future<void> _startBackgroundMusic() async {
     if (_backgroundMusicPlayer?.state != PlayerState.playing) {
-      _backgroundMusicPlayer = await FlameAudio.play(
+      _backgroundMusicPlayer = await FlameAudio.loop(
         AssetPaths.backgroundSound,
         volume: 0.5,
       );
@@ -108,7 +106,7 @@ class SurgeGame extends FlameGame with HasCollisionDetection, TapCallbacks {
       style: TextStyle(
         fontSize: 32.0,
         color: Colors.white,
-        fontFamily: 'visitor', // You can choose a different font
+        fontFamily: AssetPaths.appFont, // You can choose a different font
       ),
     );
 
@@ -137,15 +135,9 @@ class SurgeGame extends FlameGame with HasCollisionDetection, TapCallbacks {
     super.update(dt);
   }
 
-  void gameOver() {
-    gameManager.gameOver(); // Delegate to GameManager
-    // Add any game over UI or other logic here
-  }
+  void gameOver() => gameManager.gameOver();
 
-  void restartGame() {
-    gameManager.restartGame(); // Delegate to GameManager
-    // Add any UI reset or other restart logic here
-  }
+  void restartGame() => gameManager.restartGame();
 
   @override
   void onRemove() {
@@ -157,8 +149,6 @@ class SurgeGame extends FlameGame with HasCollisionDetection, TapCallbacks {
 
 bool isWeb() {
   try {
-    // Running in a browser won't have the dart:io library fully implemented,
-    // causing a NoSuchMethodError or similar.
     return Platform.environment.containsKey('FLUTTER_WEB_ORIGIN');
   } catch (e) {
     return true; // Assume it's web if there's an error accessing Platform
