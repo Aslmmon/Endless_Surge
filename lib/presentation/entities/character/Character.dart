@@ -20,15 +20,14 @@ class Character extends SpriteAnimationComponent
 
   @override
   Future<void> onLoad() async {
-
-
-   animation = await _loadRunAnimation();
+    animation = await _loadRunAnimation();
     add(
       RectangleHitbox(
         anchor: Anchor.topLeft,
         size: Vector2(40, 40), // Adjust to your sprite's size
       ),
     );
+
     return super.onLoad();
   }
 
@@ -44,12 +43,7 @@ class Character extends SpriteAnimationComponent
       Sprite(image3),
       Sprite(image4),
     ], stepTime: AssetPaths.characterRunStepTime);
-
-
   }
-
-
-
 
   void move(JoystickDirection direction, double dt) {
     Vector2 newPosition = position.clone();
@@ -109,7 +103,6 @@ class Character extends SpriteAnimationComponent
         _collisionParticles = null;
       });
       removeFromParent();
-
     }
   }
 

@@ -27,5 +27,4 @@ class AssetPaths {
   // Add other asset paths...
 
   static const String particleEffect = '$particlesFolder/smoke_effect.png';
-
 }
