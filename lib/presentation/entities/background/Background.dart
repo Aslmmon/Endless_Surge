@@ -8,7 +8,12 @@ class BackgroundParallax extends ParallaxComponent<SurgeGame> {
   Future<void> onLoad() async {
     parallax = await game.loadParallax(
       [
-        ParallaxImageData('parallax/orig2.png'),
+        ParallaxImageData('parallax/1.png'),
+        ParallaxImageData('parallax/2.png'),
+        ParallaxImageData('parallax/3.png'),
+        ParallaxImageData('parallax/4.png'),
+        ParallaxImageData('parallax/5.png'),
+        ParallaxImageData('parallax/6.png'),
       ],
       baseVelocity: Vector2(40, 0),
       fill: LayerFill.height, // Or LayerFill.width

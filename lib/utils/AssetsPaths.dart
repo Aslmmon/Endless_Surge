@@ -1,10 +1,16 @@
 class AssetPaths {
-  static const String characterFrame1 = '$yellowFolder/frame.png';
-  static const String characterFrame2 = '$yellowFolder/frame2.png';
+  static const String characterFrame1 = '$planeFolder/fly_1.png';
+  static const String characterFrame2 = '$planeFolder/fly_2.png';
   static const String characterFrame3 = '$yellowFolder/frame3.png';
   static const String characterFrame4 = '$yellowFolder/frame4.png';
   static const double characterRunStepTime = 0.1;
   static const String yellowFolder = 'birds/yellow';
+  static const String planeFolder = 'birds/plane';
+  static const String planeSound = 'plane.ogg';
+  static const String explosionSound = 'explosion.wav';
+  static const String backgroundSound = 'background.ogg';
+
+
   static const String enemyFolder = 'enemy';
   static const String particlesFolder = 'particles';
 

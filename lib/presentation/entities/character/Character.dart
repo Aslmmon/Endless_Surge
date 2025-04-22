@@ -5,6 +5,7 @@ import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/sprite.dart';
+import 'package:flame_audio/flame_audio.dart';
 import '../../ui/game.dart' show SurgeGame;
 import '../obstacles/Obstacle.dart';
 import '../particles/collision_particles.dart';
@@ -14,6 +15,8 @@ class Character extends SpriteAnimationComponent
   Vector2 velocity = Vector2.zero();
   double speed = GameConstants.characterSpeed; // Use GameConstants
   CollisionParticles? _collisionParticles; // To hold a reference
+  AudioPlayer? _runningSoundPlayer; // To hold the AudioPlayer instance
+  AudioPlayer? _collisionSoundPlayer; // To hold the AudioPlayer instance
 
   Character({required Vector2 position, required Vector2 size})
     : super(position: position, size: size) {}
@@ -21,6 +24,7 @@ class Character extends SpriteAnimationComponent
   @override
   Future<void> onLoad() async {
     animation = await _loadRunAnimation();
+    _startRunningSound();
     add(
       RectangleHitbox(
         anchor: Anchor.topLeft,
@@ -33,15 +37,11 @@ class Character extends SpriteAnimationComponent
 
   Future<SpriteAnimation> _loadRunAnimation() async {
     final image1 = await Flame.images.load(AssetPaths.characterFrame1);
-    final image2 = await Flame.images.load(AssetPaths.characterFrame2);
-    final image3 = await Flame.images.load(AssetPaths.characterFrame3);
-    final image4 = await Flame.images.load(AssetPaths.characterFrame4);
+    final image2 = await Flame.images.load(AssetPaths.characterFrame1);
 
     return SpriteAnimation.spriteList([
       Sprite(image1),
       Sprite(image2),
-      Sprite(image3),
-      Sprite(image4),
     ], stepTime: AssetPaths.characterRunStepTime);
   }
 
@@ -92,12 +92,13 @@ class Character extends SpriteAnimationComponent
     if (other is Obstacle) {
       game.gameOver();
       pauseAnimationPlayer();
-
+      _stopRunningSound();
       if (intersectionPoints.isNotEmpty) {
         final collisionPosition = intersectionPoints.first;
         _collisionParticles = CollisionParticles(position: collisionPosition);
         gameRef.add(_collisionParticles as Component);
       }
+      _playExplosionSound();
       Future.delayed(const Duration(seconds: 3), () {
         _collisionParticles?.removeFromParent();
         _collisionParticles = null;
@@ -112,5 +113,25 @@ class Character extends SpriteAnimationComponent
 
   void continueAnimationPlayer() {
     animationTicker?.paused = false;
+  }
+
+  void _startRunningSound() async {
+    _runningSoundPlayer = await FlameAudio.loop(
+      AssetPaths.planeSound,
+      volume: 0.3,
+    );
+  }
+
+  void _playExplosionSound() async {
+    _collisionSoundPlayer = await FlameAudio.play(
+      AssetPaths.explosionSound,
+      volume: 0.4,
+    );
+  }
+
+  void _stopRunningSound() {
+    _runningSoundPlayer?.stop();
+    _runningSoundPlayer?.dispose(); // Dispose of the player when stopped
+    _runningSoundPlayer = null;
   }
 }

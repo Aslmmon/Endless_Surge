@@ -7,7 +7,9 @@ import 'package:flame/camera.dart';
 import 'package:flame/components.dart' show Anchor, TextComponent;
 import 'package:flame/game.dart';
 import 'package:flame/text.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
+import '../../utils/AssetsPaths.dart';
 import '../entities/obstacles/Obstacle.dart';
 import '../entities/Joystick/joystick.dart';
 import '../entities/obstacles/obstacle_pool/ObstaclePool.dart';
@@ -25,10 +27,17 @@ class SurgeGame extends FlameGame with HasCollisionDetection {
   late CameraComponent cameraComponent;
   int _score = 0;
   double _scoreTimer = 0;
+  AudioPlayer? _backgroundMusicPlayer;
 
   @override
   FutureOr<void> onLoad() {
     GameConstants.initialize(this);
+    FlameAudio.audioCache.loadAll([
+      AssetPaths.planeSound,
+      AssetPaths.explosionSound,
+      AssetPaths.backgroundSound,
+    ]);
+    _startBackgroundMusic();
     setupBackground();
     setupCharacter();
     setupJoystick();
@@ -39,6 +48,13 @@ class SurgeGame extends FlameGame with HasCollisionDetection {
 
     _setupTextScoreComponent();
     return super.onLoad();
+  }
+
+  Future<void> _startBackgroundMusic() async {
+    _backgroundMusicPlayer = await FlameAudio.loop(
+      AssetPaths.backgroundSound,
+      volume: 0.5,
+    );
   }
 
   void setupBackground() {
