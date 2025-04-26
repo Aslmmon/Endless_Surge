@@ -8,7 +8,7 @@ class AssetPaths {
   static const String planeFolder = 'birds/plane';
   static const String planeSound = 'plane.ogg';
   static const String explosionSound = 'explosion.wav';
-  static const String backgroundSound = 'background.ogg';
+  static const String backgroundSound = 'background.mp3';
   static const String appFont = "visitor";
 
   static const String enemyFolder = 'enemy';

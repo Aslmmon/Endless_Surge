@@ -37,7 +37,7 @@ dependencies:
   riverpod: ^2.6.1
   flutter_riverpod: ^2.6.1
   flame: ^1.27.0
-  flame_audio: ^2.11.4
+  flame_audio: ^2.11.5
 
 
 dev_dependencies:

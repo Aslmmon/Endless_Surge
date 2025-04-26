@@ -17,7 +17,7 @@ class Character extends SpriteAnimationComponent
   AudioPlayer? _runningSoundPlayer; // To hold the AudioPlayer instance
 
   Character({required Vector2 position, required Vector2 size})
-    : super(position: position, size: size) {}
+    : super(position: position, size: size);
 
   @override
   Future<void> onLoad() async {
@@ -73,7 +73,6 @@ class Character extends SpriteAnimationComponent
         break;
       case JoystickDirection.idle:
         break;
-
     }
 
     _applyBoundaryChecks(newPosition);

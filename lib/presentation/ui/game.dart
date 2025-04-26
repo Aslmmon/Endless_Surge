@@ -21,7 +21,8 @@ class SurgeGame extends FlameGame with HasCollisionDetection, TapCallbacks {
   late GameJoystick joystick;
   late CameraComponent cameraComponent;
   late final GameManager gameManager; // Use final and initialize in onLoad
-  static const double scoreIncrementInterval = 0.5; // Keep as a constant here for now
+  static const double scoreIncrementInterval =
+      0.5; // Keep as a constant here for now
   bool _audioStarted = false;
   AudioPlayer? _backgroundMusicPlayer; // Store the player instance
 
@@ -48,7 +49,7 @@ class SurgeGame extends FlameGame with HasCollisionDetection, TapCallbacks {
     _setupCamera();
     gameManager.startObstacleGeneration(); // Delegate to GameManager
     _setupTextScoreComponent();
-    debugMode = true;
+    debugMode = false;
 
     return super.onLoad();
   }
@@ -63,7 +64,8 @@ class SurgeGame extends FlameGame with HasCollisionDetection, TapCallbacks {
   }
 
   Future<void> _startBackgroundMusic() async {
-    if (_backgroundMusicPlayer?.state != PlayerState.playing) {
+    if (_backgroundMusicPlayer?.state != PlayerState.playing &&
+        gameManager.gameState == GameState.playing) {
       _backgroundMusicPlayer = await FlameAudio.loop(
         AssetPaths.backgroundSound,
         volume: 0.5,

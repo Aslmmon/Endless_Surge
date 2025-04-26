@@ -32,9 +32,9 @@ class GameManager {
   void restartGame() {
     gameState = GameState.playing;
     startObstacleGeneration();
-    obstacleComponents.forEach((obstacle) {
+    for (var obstacle in obstacleComponents) {
       obstaclePool.returnObstacle(obstacle);
-    });
+    }
     obstacleComponents.clear();
     game.characterComponent.position = Vector2(
       GameConstants.characterInitialX,
