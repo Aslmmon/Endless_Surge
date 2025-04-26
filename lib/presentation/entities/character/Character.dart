@@ -20,6 +20,7 @@ class Character extends SpriteAnimationComponent
   SpriteAnimation? _runAnimation;
   SpriteAnimation? _fireAnimation;
   bool _isFiring = false;
+  double _fireAnimationTime = 0;
 
   Character({required Vector2 position, required Vector2 size})
     : super(position: position, size: size);
@@ -43,7 +44,7 @@ class Character extends SpriteAnimationComponent
 
   Future<SpriteAnimation> _loadRunAnimation() async {
     final image1 = await Flame.images.load(AssetPaths.characterFrame1);
-    final image2 = await Flame.images.load(AssetPaths.characterFrame1);
+    final image2 = await Flame.images.load(AssetPaths.characterFrame2);
 
     return SpriteAnimation.spriteList([
       Sprite(image1),
@@ -140,12 +141,27 @@ class Character extends SpriteAnimationComponent
         direction: Vector2(1, 0), // Fire to the right initially
       );
 
-      Future.delayed(const Duration(milliseconds: 100), () {
-        animation = _runAnimation;
-        _isFiring = false;
-      });
-
+      _fireAnimationTime = 0; // Reset the timer
       gameRef.add(projectile);
+    }
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    _handleFireAnimationCompletion(dt);
+  }
+
+  void _handleFireAnimationCompletion(double dt) {
+    if (_isFiring && animation == _fireAnimation) {
+      _fireAnimationTime += dt;
+      if (_fireAnimationTime >=
+          _fireAnimation!.frames.length * AssetPaths.projectTileRunStepTime) {
+        _isFiring = false;
+        animation = _runAnimation;
+        _fireAnimationTime = 0; // Reset for potential future use
+      }
     }
   }
 

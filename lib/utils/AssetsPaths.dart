@@ -10,7 +10,7 @@ class AssetPaths {
   static const String characterFire_5 = '$planeFolder/shoot_5.png';
 
   static const String project_tiles_folder = 'project_tiles';
-  static const double projectTileRunStepTime = 0.9;
+  static const double projectTileRunStepTime = 0.1;
   static const String projectTiles_1 = '$project_tiles_folder/bullets_1.png';
   static const String projectTiles_2 = '$project_tiles_folder/bullets_2.png';
   static const String projectTiles_3 = '$project_tiles_folder/bullets_3.png';
