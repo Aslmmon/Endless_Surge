@@ -17,13 +17,19 @@ class Character extends SpriteAnimationComponent
   double speed = GameConstants.characterSpeed; // Use GameConstants
   CollisionParticles? _collisionParticles; // To hold a reference
   AudioPlayer? _runningSoundPlayer; // To hold the AudioPlayer instance
+  SpriteAnimation? _runAnimation;
+  SpriteAnimation? _fireAnimation;
+  bool _isFiring = false;
 
   Character({required Vector2 position, required Vector2 size})
     : super(position: position, size: size);
 
   @override
   Future<void> onLoad() async {
-    animation = await _loadRunAnimation();
+    _runAnimation = await _loadRunAnimation();
+    _fireAnimation = await _loadFireAnimation();
+
+    animation = _runAnimation;
     _startRunningSound();
     add(
       RectangleHitbox(
@@ -42,6 +48,20 @@ class Character extends SpriteAnimationComponent
     return SpriteAnimation.spriteList([
       Sprite(image1),
       Sprite(image2),
+    ], stepTime: AssetPaths.characterRunStepTime);
+  }
+
+  Future<SpriteAnimation> _loadFireAnimation() async {
+    final image1 = await Flame.images.load(AssetPaths.characterFire_1);
+    final image2 = await Flame.images.load(AssetPaths.characterFire_2);
+    final image3 = await Flame.images.load(AssetPaths.characterFire_3);
+    final image4 = await Flame.images.load(AssetPaths.characterFire_4);
+
+    return SpriteAnimation.spriteList([
+      Sprite(image1),
+      Sprite(image2),
+      Sprite(image3),
+      Sprite(image4),
     ], stepTime: AssetPaths.characterRunStepTime);
   }
 
@@ -112,11 +132,21 @@ class Character extends SpriteAnimationComponent
   }
 
   void fire() {
-    final projectile = Projectile(
-      position: position + Vector2(width, height / 3),
-      direction: Vector2(1, 0), // Fire to the right initially
-    );
-    gameRef.add(projectile);
+    if (!_isFiring) {
+      _isFiring = true;
+      animation = _fireAnimation;
+      final projectile = Projectile(
+        position: position + Vector2(width, height / 3),
+        direction: Vector2(1, 0), // Fire to the right initially
+      );
+
+      Future.delayed(const Duration(milliseconds: 100), () {
+        animation = _runAnimation;
+        _isFiring = false;
+      });
+
+      gameRef.add(projectile);
+    }
   }
 
   void continueAnimationPlayer() {

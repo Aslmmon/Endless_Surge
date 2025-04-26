@@ -36,7 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   riverpod: ^2.6.1
   flutter_riverpod: ^2.6.1
-  flame: ^1.27.0
+  flame: ^1.28.1
   flame_audio: ^2.11.5
 
 
