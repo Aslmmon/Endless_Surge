@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:endless_surge/presentation/entities/character/projectTiles/Projectile.dart'
+    show Projectile;
 import 'package:endless_surge/utils/AssetsPaths.dart';
 import 'package:endless_surge/utils/GameConstants.dart';
 import 'package:flame/components.dart';
@@ -107,6 +109,15 @@ class Character extends SpriteAnimationComponent
 
   void pauseAnimationPlayer() {
     animationTicker?.paused = true;
+  }
+
+  void fire() {
+    final projectile = Projectile(
+      position: position + Vector2(width, height / 2) - Vector2(5, 2.5),
+      // Start from the right of the character
+      direction: Vector2(1, 0), // Fire to the right initially
+    );
+    gameRef.add(projectile);
   }
 
   void continueAnimationPlayer() {

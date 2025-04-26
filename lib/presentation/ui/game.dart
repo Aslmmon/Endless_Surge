@@ -13,12 +13,14 @@ import 'package:flame/text.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 import '../../utils/AssetsPaths.dart';
-import '../entities/Joystick/joystick.dart';
+import '../entities/Joystick/fire_button/FirebButton.dart';
+import '../entities/Joystick/movement_joystick/joystick.dart';
 
 class SurgeGame extends FlameGame with HasCollisionDetection, TapCallbacks {
   late Character characterComponent;
   late BackgroundParallax backgroundParallax;
   late GameJoystick joystick;
+  late FireButton fireButton; // Add a FireButton instance
   late CameraComponent cameraComponent;
   late final GameManager gameManager; // Use final and initialize in onLoad
   static const double scoreIncrementInterval =
@@ -47,9 +49,11 @@ class SurgeGame extends FlameGame with HasCollisionDetection, TapCallbacks {
     _setupCharacter();
     _setupJoystick();
     _setupCamera();
+    _setupFireButton();
+
     gameManager.startObstacleGeneration(); // Delegate to GameManager
     _setupTextScoreComponent();
-    debugMode = false;
+    debugMode = true;
 
     return super.onLoad();
   }
@@ -61,6 +65,19 @@ class SurgeGame extends FlameGame with HasCollisionDetection, TapCallbacks {
       _audioStarted = true;
     }
     super.onTapDown(event); // Don't forget to call super
+  }
+
+  void _setupFireButton() {
+    final buttonSize = Vector2(80, 80);
+    final buttonPosition = Vector2(
+      GameConstants.screenWidth - buttonSize.x - 40,
+      GameConstants.screenHeight - buttonSize.y - 40,
+    );
+    fireButton = FireButton(position: buttonPosition, size: buttonSize, () {
+      //onFire
+      characterComponent.fire();
+    });
+    add(fireButton);
   }
 
   Future<void> _startBackgroundMusic() async {
