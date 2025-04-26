@@ -73,10 +73,11 @@ class SurgeGame extends FlameGame with HasCollisionDetection, TapCallbacks {
       GameConstants.screenWidth - buttonSize.x - 40,
       GameConstants.screenHeight - buttonSize.y - 40,
     );
-    fireButton = FireButton(position: buttonPosition, size: buttonSize, () {
-      //onFire
-      characterComponent.fire();
-    });
+    fireButton = FireButton(
+      position: buttonPosition,
+      size: buttonSize,
+      () => characterComponent.fire(),
+    );
     add(fireButton);
   }
 

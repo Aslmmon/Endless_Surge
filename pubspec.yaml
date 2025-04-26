@@ -70,5 +70,6 @@ flutter:
     - assets/images/enemy/
     - assets/images/parallax/
     - assets/images/particles/
+    - assets/images/project_tiles/
     - assets/audio/
     - assets/fonts/

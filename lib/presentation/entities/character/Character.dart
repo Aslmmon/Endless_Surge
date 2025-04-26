@@ -113,8 +113,7 @@ class Character extends SpriteAnimationComponent
 
   void fire() {
     final projectile = Projectile(
-      position: position + Vector2(width, height / 2) - Vector2(5, 2.5),
-      // Start from the right of the character
+      position: position + Vector2(width, height / 3),
       direction: Vector2(1, 0), // Fire to the right initially
     );
     gameRef.add(projectile);
