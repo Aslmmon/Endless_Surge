@@ -1,32 +1,28 @@
 import 'dart:ui';
 
-import 'package:endless_surge/presentation/ui/game.dart';
+import 'package:endless_surge/utils/GameConstants.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flutter/material.dart';
 
-class FireButton extends PositionComponent
-    with TapCallbacks, HasGameRef<SurgeGame> {
-  final Paint _buttonPaint = Paint()..color = Colors.blue.withOpacity(0.5);
-
+class FireButton extends JoystickComponent with TapCallbacks {
   final VoidCallback onFireButtonClicked;
-  final Paint _borderPaint =
-      Paint()
-        ..color = Colors.blue
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2;
 
-  FireButton(
-    this.onFireButtonClicked, {
-    required Vector2 position,
-    required Vector2 size,
-  }) : super(position: position, size: size);
-
-  @override
-  void render(Canvas canvas) {
-    canvas.drawCircle(Offset(size.x / 2, size.y / 2), size.x / 2, _buttonPaint);
-    canvas.drawCircle(Offset(size.x / 2, size.y / 2), size.x / 2, _borderPaint);
-  }
+  FireButton(this.onFireButtonClicked, {required Vector2 size})
+    : super(
+        knob: CircleComponent(
+          radius: size.x / 3,
+          paint: Paint()..color = Colors.red.withOpacity(0.8),
+        ),
+        background: CircleComponent(
+          radius: size.x / 2,
+          paint: Paint()..color = Colors.red.withOpacity(0.2),
+        ),
+        margin: EdgeInsets.only(
+          right: GameConstants.joystickMarginLeft,
+          bottom: GameConstants.joystickMarginBottom,
+        ),
+      );
 
   @override
   void onTapDown(TapDownEvent event) {

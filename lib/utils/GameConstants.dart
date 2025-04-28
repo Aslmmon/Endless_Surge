@@ -21,7 +21,12 @@ class GameConstants {
   static const double characterSpeed = 200.0; // Character Speed
 
   // Obstacle Constants
-  static const double obstacleSize = 50.0;
+  static const double  obstacleFrameWidth = 64;
+  static const double  obstacleFrameHeight = 64;
+  static const double  obstacleFrameAmount = 5;
+  static const double  obstacleFrameStepTime = 0.1;
+  static const double  obstacleFrameAmountDying = 8;
+  static const double obstacleSize = 60.0;
   static const double obstacleGenerationIntervalMin = 500;
   static const double obstacleGenerationIntervalMax = 2500;
   static const double obstacleInitialSpeedMin = 50.0;

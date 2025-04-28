@@ -39,10 +39,7 @@ class SurgeGame extends FlameGame with HasCollisionDetection, TapCallbacks {
       AssetPaths.backgroundSound,
     ]);
 
-    if (isWeb()) {
-      print("Running on Web");
-    } else {
-      print("Running on a native platform (Android, iOS, Desktop)");
+    if (!isWeb()) {
       await _startBackgroundMusic(); // Start immediately on native
     }
     _setupBackground();
@@ -69,15 +66,7 @@ class SurgeGame extends FlameGame with HasCollisionDetection, TapCallbacks {
 
   void _setupFireButton() {
     final buttonSize = Vector2(80, 80);
-    final buttonPosition = Vector2(
-      GameConstants.screenWidth - buttonSize.x - 40,
-      GameConstants.screenHeight - buttonSize.y - 40,
-    );
-    fireButton = FireButton(
-      position: buttonPosition,
-      size: buttonSize,
-      () => characterComponent.fire(),
-    );
+    fireButton = FireButton(size: buttonSize, () => characterComponent.fire());
     add(fireButton);
   }
 
